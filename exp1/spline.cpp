@@ -83,11 +83,6 @@ void Spline::calculateMs() {
         ms[i] = y[i] - beta[i] * ms[i+1];
     }
 
-    cout << "M:" << endl;
-    for (int i = 0; i <= n; i++)
-        cout << ms[i] << ' ';
-    cout << endl;
-
     delete []y;
     delete []beta;
 }
