@@ -20,6 +20,7 @@ public:
     Matrix operator * (Matrix &m);
     double* operator * (double *x);
     void solveLU(double *b, double *ans);
+    void solveCh(double *b, double *ans);
 };
 
 #endif

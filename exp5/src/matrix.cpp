@@ -211,3 +211,54 @@ void Matrix::solveLU(double *b, double *ans){
     freeMatrix(L, scale, scale);
     freeMatrix(U, scale, scale);
 }
+
+void Matrix::solveCh(double *b, double *ans) {
+    // create L
+    double **L = new double*[scale];
+    for (int i = 0; i < scale; i++) {
+        L[i] = new double[scale];
+        for (int j = 0; j < scale; j++)
+            L[i][j] = 0;
+    }
+
+    // calculate L
+    for (int j = 0; j < scale; j++) {
+        L[j][j] = matrix[j][j];
+        for (int k = 0; k < j; k++) {
+            L[j][j] -= L[j][k] * L[j][k];
+        }
+        L[j][j] = sqrt(L[j][j]);
+    }
+    for (int j = 0; j < scale; j++) {
+        for (int i = j+1; i < scale; i++){
+            L[i][j] = matrix[i][j];
+            for (int k = 0; k < j; k++) {
+                L[i][j] -= L[i][k] * L[j][k];
+            }
+            L[i][j] /= L[j][j];
+        }
+    }
+
+    double y[scale];
+    for (int i = 0; i < scale; i++) {
+        y[i] = b[i];
+        for (int k = 0; k < i; k++) {
+            y[i] -= L[i][k] * y[k];
+        }
+        y[i] /= L[i][i];
+    }
+
+    for (int i = scale-1; i >= 0; i--) {
+        ans[i] = b[i];
+        for (int k = i; k < scale; k++) {
+            ans[i] -= L[k][k] * ans[k];
+        }
+        ans[i] /= L[i][i];
+    }
+
+    // free L
+    for (int i = 0; i < scale; i++) {
+        delete []L[i];
+    }
+    delete L;
+}
