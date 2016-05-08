@@ -12,16 +12,10 @@ Matrix getHMatrix(int scale) {
 }
 
 int main() {
-    Matrix m = getHMatrix(3);
-    // for (int i = 0; i < 3; i++) {
-    //     for (int j = 0; j < 3; j++) {
-    //         m.matrix[i][j] = 0;
-    //         if (i == j) m.matrix[i][j] = 1.0;
-    //     }
-    // }
-    Matrix r = m.getReverse();
-    Matrix s = r * m;
-    r.display();
-    s.display();
+    Matrix m3 = getHMatrix(3);
+    Matrix m4 = getHMatrix(4);
+
+    cout << m3.cond() << endl;
+    cout << m4.cond() << endl;
     return 0;
 }

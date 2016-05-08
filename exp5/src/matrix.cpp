@@ -1,4 +1,5 @@
 #include "matrix.h"
+#include <cmath>
 #include <iomanip>
 using namespace std;
 
@@ -126,4 +127,22 @@ Matrix Matrix::operator * (Matrix &m) {
         }
     }
     return result;
+}
+
+double Matrix::norm(string name) {
+    double ans = -99999999;
+    if (name == "line") {
+        for (int i = 0; i < scale; i++) {
+            double sum = 0.0;
+            for (int j = 0; j < scale; j++) {
+                sum += fabs(matrix[i][j]);
+            }
+            if (sum > ans)  ans = sum;
+        }
+    }
+    return ans;
+}
+
+double Matrix::cond() {
+    return getReverse().norm("line") * norm("line");
 }
