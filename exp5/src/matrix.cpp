@@ -3,6 +3,15 @@
 #include <iomanip>
 using namespace std;
 
+void freeMatrix(double **m, int width, int height) {
+    if (!m)    return;
+    for (int i = 0; i < height; i++) {
+        if (m[i])
+            delete []m[i];
+    }
+    delete m;
+}
+
 Matrix::Matrix(int scale) {
     this->scale = scale;
     matrix = new double*[scale];
@@ -30,12 +39,7 @@ Matrix::Matrix(int scale, double **m) {
 }
 
 Matrix::~Matrix() {
-    if (!matrix)    return;
-    for (int i = 0; i < scale; i++) {
-        if (matrix[i])
-            delete []matrix[i];
-    }
-    delete matrix;
+    freeMatrix(matrix, scale, scale);
 }
 
 void Matrix::display(double **m, int width, int height) {
@@ -108,10 +112,7 @@ Matrix Matrix::getReverse() {
         }
     }
     // delete tem matrix
-    for (int i = 0; i < scale; i++) {
-        delete []tem[i];
-    }
-    delete tem;
+    freeMatrix(tem, scale*2, scale);
 
     return reverse;
 }
@@ -127,6 +128,17 @@ Matrix Matrix::operator * (Matrix &m) {
         }
     }
     return result;
+}
+
+double* Matrix::operator * (double *x) {
+    double *ans = new double[scale];
+    for (int i = 0; i < scale; i++) {
+        ans[i] = 0;
+        for (int k = 0; k < scale; k++) {
+            ans[i] += matrix[i][k] * x[k];
+        }
+    }
+    return ans;
 }
 
 double Matrix::norm(string name) {
@@ -145,4 +157,57 @@ double Matrix::norm(string name) {
 
 double Matrix::cond() {
     return getReverse().norm("line") * norm("line");
+}
+
+void Matrix::solveLU(double *b, double *ans){
+    double **L;
+    double **U;
+    L = new double*[scale];
+    U = new double*[scale];
+    for (int i = 0; i < scale; i++) {
+        L[i] = new double[scale];
+        U[i] = new double[scale];
+    }
+
+    for (int i = 0; i < scale; i++) {
+        U[0][i] = matrix[0][i];
+        L[i][0] = matrix[i][0] / U[0][0];
+    }
+    for (int r = 1; r < scale; r++) {
+        for (int i = r; i < scale; i++) {
+            U[r][i] = matrix[r][i];
+            for (int k = 0; k < r; k++) {
+                U[r][i] -= L[r][k] * U[k][i];
+            }
+        }
+        for (int i = r+1; i < scale; i++) {
+            L[i][r] = matrix[i][r];
+            for (int k = 0; k < r; k++) {
+                L[i][r] -= L[i][k] * U[k][r];
+            }
+            L[i][r] /= U[r][r];
+        }
+    }
+    // display(L, scale, scale);
+    // display(U, scale, scale);
+
+    double y[scale];
+    y[0] = b[0];
+    for (int i = 1; i < scale; i++) {
+        y[i] = b[i];
+        for (int k = 0; k < i; k++) {
+            y[i] -= L[i][k] * y[k];
+        }
+    }
+    ans[scale-1] = y[scale-1] / U[scale-1][scale-1];
+    for (int i = scale-2; i >= 0; i--) {
+        ans[i] = y[i];
+        for (int k = i+1; k < scale; k++) {
+            ans[i] -= U[i][k] * ans[k];
+        }
+        ans[i] /= U[i][i];
+    }
+
+    freeMatrix(L, scale, scale);
+    freeMatrix(U, scale, scale);
 }

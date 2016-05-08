@@ -18,8 +18,8 @@ public:
     double norm(std::string name);
     Matrix getReverse();
     Matrix operator * (Matrix &m);
-
-
+    double* operator * (double *x);
+    void solveLU(double *b, double *ans);
 };
 
 #endif
